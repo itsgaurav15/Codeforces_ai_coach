@@ -1,47 +1,61 @@
 from backend.services.codeforces_service import get_user_info
 from backend.services.analytics import analytics_report
 from backend.services.recommendation_service import recommend_problems
+from backend.services.planner_service import generate_practice_plan
+from backend.services.contest_service import contest_analysis 
+from backend.prompts.coach_prompts import build_coach_prompt
+from backend.services.llm_service import ask_coach
 
 def profile_node(state):
 
     handle = state["handle"]
 
-    state["profile"] = get_user_info(handle)
-
-    return state
+    return {
+        "profile": get_user_info(handle)
+    }
 
 def analytics_node(state):
 
     handle = state["handle"]
 
-    state["analytics"] = analytics_report(handle)
-
-    return state
+    return {
+        "analytics": analytics_report(handle)
+    }
 
 def recommendation_node(state):
 
     handle = state["handle"]
 
-    state["recommendations"] = recommend_problems(handle)
+    return {
+        "recommendations": recommend_problems(handle)
+    }
 
-    return state
 
 def coach_summary_node(state):
 
-    weak = state["analytics"]["weak_topics"]
+    prompt = build_coach_prompt(state)
 
-    recs = state["recommendations"]
+    advice = ask_coach(prompt)
 
-    summary = f"""
-Current Rating: {state['profile'].get('rating')}
+    return {
+        "summary": advice
+    }
 
-Weak Topics:
-{[x['tag'] for x in weak]}
+def planner_node(state):
 
-Recommended Problems:
-{[x['name'] for x in recs[:5]]}
-"""
+    handle = state["handle"]
 
-    state["summary"] = summary
+    return {
+        "practice_plan": generate_practice_plan(handle)
+    }
 
-    return state
+def contest_node(state):
+
+    result = contest_analysis(state["handle"])
+
+    print("\nContest Analysis:")
+    print(result)
+
+    return {
+        "contest_analysis": result
+    }

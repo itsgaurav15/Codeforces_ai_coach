@@ -7,6 +7,9 @@ from backend.services.recommendation_service import (
     recommend_problems
 )
 from backend.graph.graph_builder import graph
+from backend.services.planner_service import generate_practice_plan
+from backend.services.contest_service import contest_analysis
+from backend.services.contest_sync_service import sync_contests
 
 router = APIRouter()
 
@@ -42,3 +45,17 @@ def coach(handle:str):
         }
     )
     return result
+
+@router.get("/plan/{handle}")
+def plan(handle:str):
+    return generate_practice_plan(handle)
+
+@router.get("/contest-analysis/{handle}")
+def contest(handle):
+
+    return contest_analysis(handle)
+
+@router.get("/sync-contests/{handle}")
+def contest_sync(handle: str):
+
+    return sync_contests(handle)

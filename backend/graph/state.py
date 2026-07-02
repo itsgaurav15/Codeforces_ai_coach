@@ -6,4 +6,6 @@ class CoachState(TypedDict):
     profile: dict
     analytics: dict
     recommendations: list
+    practice_plan:dict
+    contest_analysis:dict
     summary: str

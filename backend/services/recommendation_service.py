@@ -62,13 +62,19 @@ def recommend_problems(handle):
 
         if any(tag in weak_tags for tag in tags):
 
-            recommendations.append(
-                {
-                    "name": problem.name,
-                    "rating": problem.rating,
-                    "tags": tags
-                }
-            )
+            recommendations.append({
+
+    "contest_id": problem.contest_id,
+
+    "index": problem.problem_index,
+
+    "name": problem.name,
+
+    "rating": problem.rating,
+
+    "tags": problem.tags.split(",")
+
+})
 
     db.close()
 
