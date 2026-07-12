@@ -5,47 +5,45 @@ from backend.services.codeforces_service import get_contest_history
 
 def sync_contests(handle):
 
-    db = SessionLocal()
-
     contests = get_contest_history(handle)
 
-    db.query(Contest).filter(
-        Contest.handle == handle
-    ).delete()
+    db = SessionLocal()
+    try:
+        db.query(Contest).filter(
+            Contest.handle == handle
+        ).delete()
 
-    db.commit()
+        for contest in contests:
 
-    for contest in contests:
+            row = Contest(
 
-        row = Contest(
+                handle=handle,
 
-            handle=handle,
+                contest_id=contest["contestId"],
 
-            contest_id=contest["contestId"],
+                contest_name=contest["contestName"],
 
-            contest_name=contest["contestName"],
+                rank=contest["rank"],
 
-            rank=contest["rank"],
+                old_rating=contest["oldRating"],
 
-            old_rating=contest["oldRating"],
+                new_rating=contest["newRating"],
 
-            new_rating=contest["newRating"],
+                rating_change=contest["newRating"] -
+                               contest["oldRating"],
 
-            rating_change=contest["newRating"] -
-                           contest["oldRating"],
+                contest_time=contest["ratingUpdateTimeSeconds"]
 
-            contest_time=contest["ratingUpdateTimeSeconds"]
+            )
 
-        )
+            db.add(row)
 
-        db.add(row)
+        db.commit()
 
-    db.commit()
+        return {
 
-    db.close()
+            "saved": len(contests)
 
-    return {
-
-        "saved": len(contests)
-
-    }
+        }
+    finally:
+        db.close()

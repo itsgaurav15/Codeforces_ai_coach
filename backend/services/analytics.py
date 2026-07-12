@@ -7,56 +7,57 @@ from backend.models.submission import Submission
 
 def overall_success_rate(handle):
     db = SessionLocal()
+    try:
+        submissions = (
+            db.query(Submission)
+            .filter(Submission.handle == handle)
+            .all()
+        )
 
-    submissions = (
-        db.query(Submission)
-        .filter(Submission.handle == handle)
-        .all()
-    )
+        total = len(submissions)
 
-    total = len(submissions)
+        if total == 0:
+            return 0
 
-    if total == 0:
+        solved = sum(
+            1
+            for sub in submissions
+            if sub.verdict == "OK"
+        )
+
+        return round(
+            solved * 100 / total,
+            2
+        )
+    finally:
         db.close()
-        return 0
-
-    solved = sum(
-        1
-        for sub in submissions
-        if sub.verdict == "OK"
-    )
-
-    db.close()
-
-    return round(
-        solved * 100 / total,
-        2
-    )
 
 def get_user_rating(handle):
     db = SessionLocal()
+    try:
+        user = (
+            db.query(User)
+            .filter(User.handle == handle)
+            .first()
+        )
 
-    user = (
-        db.query(User)
-        .filter(User.handle == handle)
-        .first()
-    )
+        if not user:
+            return 1200
 
-    db.close()
-
-    if not user:
-        return 1200
-
-    return user.rating
+        return user.rating
+    finally:
+        db.close()
 
 def tag_statistics(handle):
     db = SessionLocal()
-
-    submissions = (
-        db.query(Submission)
-        .filter(Submission.handle == handle)
-        .all()
-    )
+    try:
+        submissions = (
+            db.query(Submission)
+            .filter(Submission.handle == handle)
+            .all()
+        )
+    finally:
+        db.close()
 
     tag_total = defaultdict(int)
     tag_ok = defaultdict(int)
@@ -66,7 +67,7 @@ def tag_statistics(handle):
         if not sub.tags:
             continue
 
-        tags = sub.tags.split(",")
+        tags = [tag for tag in sub.tags.split(",") if tag.strip()]
 
         for tag in tags:
 
@@ -74,8 +75,6 @@ def tag_statistics(handle):
 
             if sub.verdict == "OK":
                 tag_ok[tag] += 1
-
-    db.close()
 
     stats = {}
 
@@ -89,9 +88,10 @@ def tag_statistics(handle):
     return stats
 
 
-def weak_topics(handle):
+def weak_topics(handle, stats=None):
 
-    stats = tag_statistics(handle)
+    if stats is None:
+        stats = tag_statistics(handle)
 
     weak = []
 
@@ -113,9 +113,10 @@ def weak_topics(handle):
     return weak[:5]
 
 
-def strong_topics(handle):
+def strong_topics(handle, stats=None):
 
-    stats = tag_statistics(handle)
+    if stats is None:
+        stats = tag_statistics(handle)
 
     strong = []
 
@@ -139,14 +140,18 @@ def strong_topics(handle):
 
 def analytics_report(handle):
 
+    # Compute tag stats once and reuse for both weak and strong topics,
+    # instead of scanning all submissions twice.
+    stats = tag_statistics(handle)
+
     return {
 
         "overall_success_rate":
             overall_success_rate(handle),
 
         "weak_topics":
-            weak_topics(handle),
+            weak_topics(handle, stats),
 
         "strong_topics":
-            strong_topics(handle)
+            strong_topics(handle, stats)
     }

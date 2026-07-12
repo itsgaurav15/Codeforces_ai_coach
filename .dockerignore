@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+*.pyc
+coach.db
+.env
+.git/
+.vscode/
+mcp_server/
+frontend/
+LICENSE
+create_tables.py
+test.py

@@ -8,7 +8,7 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
 
-    handle = Column(String)
+    handle = Column(String, index=True)
 
     rating = Column(Integer)
 

@@ -27,15 +27,15 @@ def rating_trend(contests):
 def contest_analysis(handle):
 
     db = SessionLocal()
-
-    contests = (
-        db.query(Contest)
-        .filter(Contest.handle == handle)
-        .order_by(Contest.contest_time.asc())
-        .all()
-    )
-
-    db.close()
+    try:
+        contests = (
+            db.query(Contest)
+            .filter(Contest.handle == handle)
+            .order_by(Contest.contest_time.asc())
+            .all()
+        )
+    finally:
+        db.close()
 
     if not contests:
         return {

@@ -10,10 +10,11 @@ from backend.graph.graph_builder import graph
 from backend.services.planner_service import generate_practice_plan
 from backend.services.contest_service import contest_analysis
 from backend.services.contest_sync_service import sync_contests
+from backend.schemas import ProfileResponse, AnalyticsResponse
 
 router = APIRouter()
 
-@router.get("/profile/{handle}")
+@router.get("/profile/{handle}", response_model=ProfileResponse)
 def profile(handle: str):
     return get_user_info(handle)
 
@@ -21,7 +22,7 @@ def profile(handle: str):
 def sync(handle: str):
     return sync_submissions(handle)
 
-@router.get("/analytics/{handle}")
+@router.get("/analytics/{handle}", response_model=AnalyticsResponse)
 def analytics(handle: str):
 
     return analytics_report(handle)
@@ -51,7 +52,7 @@ def plan(handle:str):
     return generate_practice_plan(handle)
 
 @router.get("/contest-analysis/{handle}")
-def contest(handle):
+def contest(handle: str):
 
     return contest_analysis(handle)
 

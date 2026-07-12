@@ -6,7 +6,7 @@ class Submission(Base):
 
     id = Column(Integer, primary_key=True, index=True)
 
-    handle = Column(String, nullable=False)
+    handle = Column(String, nullable=False, index=True)
 
     contest_id = Column(Integer)
 

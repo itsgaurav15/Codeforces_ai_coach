@@ -4,6 +4,8 @@ from groq import Groq
 
 from dotenv import load_dotenv
 
+from backend.config import GROQ_MODEL
+
 load_dotenv()
 
 client = Groq(
@@ -15,7 +17,7 @@ def ask_coach(prompt):
 
     response = client.chat.completions.create(
 
-        model="llama-3.3-70b-versatile",
+        model=GROQ_MODEL,
 
         messages=[
             {
