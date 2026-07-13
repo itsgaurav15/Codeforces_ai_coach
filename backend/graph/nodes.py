@@ -5,10 +5,18 @@ from backend.services.analytics import analytics_report
 from backend.services.recommendation_service import recommend_problems
 from backend.services.planner_service import generate_practice_plan
 from backend.services.contest_service import contest_analysis 
+from backend.services.sync_helper import ensure_handle_synced
 from backend.prompts.coach_prompts import build_coach_prompt
 from backend.services.llm_service import ask_coach
 
 logger = logging.getLogger(__name__)
+
+def sync_node(state):
+    # Runs first in the graph so any handle — not just ones already in
+    # TRACKED_HANDLES — has local data available before the analytics/
+    # recommendation/contest/planner nodes try to read from the DB.
+    ensure_handle_synced(state["handle"])
+    return {}
 
 def profile_node(state):
 

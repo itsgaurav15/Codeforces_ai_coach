@@ -7,7 +7,7 @@ load_dotenv()
 
 # Points at the local backend by default; set BACKEND_URL to the deployed
 # URL once the backend is hosted (e.g. https://your-app.onrender.com).
-BASE_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+BASE_URL = os.getenv("BACKEND_URL", "https://codeforces-ai-coach.onrender.com")
 
 
 def get_coach(handle):

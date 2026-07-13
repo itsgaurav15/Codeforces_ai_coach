@@ -10,12 +10,14 @@ from backend.graph.graph_builder import graph
 from backend.services.planner_service import generate_practice_plan
 from backend.services.contest_service import contest_analysis
 from backend.services.contest_sync_service import sync_contests
+from backend.services.sync_helper import ensure_handle_synced
 from backend.schemas import ProfileResponse, AnalyticsResponse
 
 router = APIRouter()
 
 @router.get("/profile/{handle}", response_model=ProfileResponse)
 def profile(handle: str):
+    # Hits the live Codeforces API directly — no local sync needed.
     return get_user_info(handle)
 
 @router.get("/sync-submissions/{handle}")
@@ -24,7 +26,9 @@ def sync(handle: str):
 
 @router.get("/analytics/{handle}", response_model=AnalyticsResponse)
 def analytics(handle: str):
-
+    # Auto-syncs on first request for a handle that has no local data yet,
+    # instead of silently returning an empty/zeroed report.
+    ensure_handle_synced(handle)
     return analytics_report(handle)
 
 @router.get("/sync-problems")
@@ -34,7 +38,7 @@ def sync():
 
 @router.get("/recommendations/{handle}")
 def recommendations(handle: str):
-
+    ensure_handle_synced(handle)
     return recommend_problems(handle)
 
 
@@ -49,11 +53,12 @@ def coach(handle:str):
 
 @router.get("/plan/{handle}")
 def plan(handle:str):
+    ensure_handle_synced(handle)
     return generate_practice_plan(handle)
 
 @router.get("/contest-analysis/{handle}")
 def contest(handle: str):
-
+    ensure_handle_synced(handle)
     return contest_analysis(handle)
 
 @router.get("/sync-contests/{handle}")
